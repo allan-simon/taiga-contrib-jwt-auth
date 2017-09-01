@@ -100,11 +100,11 @@ def ping_federate_register(
     return user
 
 
-def ping_federate_login_func(request):
+def jwt_login_func(request):
 
-    reference = request.DATA['REF']
+    code = request.DATA['code']
 
-    user_info = connector.call_assertion(reference)
+    user_info = connector.get_user_info(code)
 
     user = ping_federate_register(
         username=user_info.username,

@@ -19,23 +19,16 @@ from collections import namedtuple
 
 import requests
 
+import jwt
+
 from django.conf import settings
 
 from taiga.base.connectors.exceptions import ConnectorBaseException
-
-class PingFederateApiError(ConnectorBaseException):
-    pass
 
 
 ######################################################
 ## Data
 ######################################################
-
-TARGET_RESOURCE = getattr(settings, "PF_AUTH_TARGET_RESOURCE", None)
-SERVICE_URL = getattr(settings, "PF_AUTH_SERVICE_URL", None)
-USERNAME = getattr(settings, "PF_AUTH_SERVICE_USERNAME", None)
-PASSWORD = getattr(settings, "PF_AUTH_SERVICE_PASSWORD", None)
-INSTANCE_ID = getattr(settings, "PF_AUTH_INSTANCE_ID", None)
 
 User = namedtuple(
     "User",
@@ -44,56 +37,50 @@ User = namedtuple(
         "username",
         "email",
         "full_name",
-        "bio",
     ],
 )
 
 
 ######################################################
-## utils
+## Convined calls
 ######################################################
 
-def _get(url: str, params: dict, headers: dict) -> dict:
-    """
-    Make a GET call.
-    """
-    response = requests.get(
-        url,
-        params=params,
-        headers=headers,
+def get_user_info(code):
+
+    response = requests.post(
+        settings.OAUTH2_URL,
+        data={
+            'client_id': settings.OAUTH2_CLIENT_ID,
+            'code': code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': settings.OAUTH2_REDIRECT_URI,
+        },
     )
 
     data = response.json()
     if response.status_code != 200:
-        raise PingFederateApiError(
+        raise ConnectorBaseException(
             {
                 "status_code": response.status_code,
                 "error": data.get("error", "")
             },
         )
-    return data
 
-######################################################
-## Convined calls
-######################################################
+    token = data["access_token"]
+    payload = jwt.decode(
+        token,
+        settings.JWT_PUBLIC_KEY,
+        options={
+            'verify_signature': True,
+            'verify_exp': True,
+            'required_exp': True,
+        }
+    )
 
-def call_assertion(reference):
-
-    uri = SERVICE_URL + '/ext/ref/pickup'
-    params = {'REF' : reference}
-    headers = {
-        'ping.uname' : USERNAME,
-        'ping.pwd' : PASSWORD,
-        'ping.instanceId' : INSTANCE_ID,
-    }
-
-    data = _get(uri, params, headers)
-    data.get("email", None)
 
     return User(
-        guid=data.get("userGUID", None),
-        username=data.get("subject", None),
-        full_name=data.get("firstname", None) + " " + data.get("lastname", None),
-        email=data.get("email", None),
-        bio="",
+        guid=payload.get("userGUID", None),
+        username=payload.get("email", None),
+        full_name=payload.get("firstname", None) + " " + payload.get("lastname", None),
+        email=payload.get("email", None),
     )

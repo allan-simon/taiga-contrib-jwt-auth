@@ -4,18 +4,20 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='taiga-contrib-ping-federate-auth',
-    version=":versiontools:taiga_contrib_ping_federate_auth:",
-    description="The Taiga plugin for Ping Federate authentication",
+    name='taiga-contrib-jwt-auth',
+    version=":versiontools:taiga_contrib_jwt_auth:",
+    description="The Taiga plugin for JWT authentication",
     long_description="",
-    keywords='taiga, ping federate, auth, plugin',
+    keywords='taiga, jwt, auth, plugin',
     author='Allan SIMON',
     author_email='allan.simon@supinfo.com',
-    url='https://github.com/allan-simon/taiga-contrib-ping-federate-auth',
+    url='https://github.com/allan-simon/taiga-contrib-jwt-auth',
     license='AGPL',
     include_package_data=True,
     packages=find_packages(),
     install_requires=[
+        'PyJWT',
+        'cryptography',
         'django >= 1.7',
     ],
     setup_requires=[

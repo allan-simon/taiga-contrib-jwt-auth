@@ -31,8 +31,7 @@
 
                 $events.setupConnection();
                 $location.search("next", null);
-                $location.search("REF", null);
-                $location.search("TargetResource", null);
+                $location.search("code", null);
 
                 var redirectToUri = $location.url(nextUrl).absUrl();
                 return $window.location.href = redirectToUri;
@@ -40,8 +39,7 @@
             };
 
             var loginOnError = function(response) {
-                $location.search("TargetResource", null);
-                $location.search("REF", null);
+                $location.search("code", null);
                 $loader.pageLoaded();
                 if (response.data.error_message) {
                     return $confirm.notify(
@@ -56,16 +54,13 @@
             };
 
             var loginWithPingFederateAccount = function() {
-                var targetResource = $params.TargetResource;
-                var ref = $params.REF;
-
-                if (!(targetResource && ref)) {
+                var code = $params.code;
+                if (!code) {
                     return;
                 }
                 $loader.start();
                 var data = {
-                    targetResource: targetResource,
-                    REF: ref
+                    code: code
                 };
                 return $auth.
                     login(data, "pingfederate").
@@ -83,13 +78,14 @@
                 function(event) {
                     var redirectToUri = $location.url($location.path()).absUrl();
 
-                    var PING_FEDERATE_AUTH_SERVICE_URL = $config.get("pingfederateAuthServiceURL", null);
-                    var PING_FEDERATE_TARGET_RESOURCE = $config.get("pingfederateTargetResource", null);
-                    var url = "" + PING_FEDERATE_AUTH_SERVICE_URL +
-                        "/pf/adapter2adapter" +
-                        "?TargetResource=" + PING_FEDERATE_TARGET_RESOURCE
+                    var OAUTH2_URL = $config.get("OAuth2URL", null);
+                    var REDIRECT_URL = $config.get("OAuth2RedirectURI", null);
+                    var CLIENT_ID = $config.get("ClientID", null);
+                    var url = "" + OAUTH2_URL +
+                        "?redirect_uri=" + REDIRECT_URL +
+                        "&client_id=" + CLIENT_ID +
+                        "&response_type=code"
                     ;
-                    console.log(redirectToUri);
 
                     return $window.location.href = url;
                 }
@@ -130,7 +126,7 @@
             return $templateCache.put(
                 '/plugins/auth/ping_federate_auth.html',
                 '<div tg-ping-federate-login-button="tg-ping-federate-login-button">' +
-                    '<a href="" title="Enter with your ping federate account" class="button button-auth">'+
+                    '<a href="" title="Enter with your SSO account" class="button button-auth">'+
                         '<img src="images/contrib/google-logo.png"/>' +
                         '<span>Login with SSO</span>' +
                     '</a>' +

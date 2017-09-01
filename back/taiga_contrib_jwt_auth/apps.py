@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2015 Allan Simon <allan.simon@supinfo.com>
 # Copyright (C) 2014 Andrey Antukh <niwi@niwi.be>
 # Copyright (C) 2014 Jesús Espino <jespinog@gmail.com>
 # Copyright (C) 2014 David Barragán <bameda@dbarragan.com>
@@ -14,24 +16,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from settings.development import *
+from django.apps import AppConfig
+from django.db.models import signals
 
-SKIP_SOUTH_TESTS = True
-SOUTH_TESTS_MIGRATE = False
-CELERY_ALWAYS_EAGER = True
-CELERY_ENABLED = False
+class TaigaContribJWTAuthAppConfig(AppConfig):
+    name = "taiga_contrib_jwt_auth"
+    verbose_name = "Taiga contrib JWT auth App Config"
 
-MEDIA_ROOT = "/tmp"
-
-EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-INSTALLED_APPS = INSTALLED_APPS + [
-    "taiga_contrib_github_auth",
-]
-INSTALLED_APPS = set(INSTALLED_APPS) - set(["taiga.hooks.github", "taiga.hooks.gitlab", "taiga.hooks.bitbucket"])
-
-REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
-    "anon": None,
-    "user": None,
-    "import-mode": None,
-    "import-dump-mode": None,
-}
+    def ready(self):
+        from taiga.auth.services import register_auth_plugin
+        from . import services
+        register_auth_plugin(
+            "jwt_auth",
+            services.jwt_login_func,
+        )
