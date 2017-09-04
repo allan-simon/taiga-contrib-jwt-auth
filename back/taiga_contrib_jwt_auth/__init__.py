@@ -19,4 +19,4 @@
 
 __version__ = (0, 1, 0)
 
-default_app_config = "taiga_contrib_ping_federate_auth.apps.TaigaContribPingFederateAuthAppConfig"
+default_app_config = "taiga_contrib_jwt_auth.apps.TaigaContribJWTAuthAppConfig"
