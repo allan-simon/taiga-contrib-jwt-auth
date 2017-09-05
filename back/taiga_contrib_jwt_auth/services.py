@@ -26,7 +26,7 @@ from taiga.base.connectors.exceptions import ConnectorBaseException
 
 from . import connector
 
-USER_KEY = "pingfederate"
+USER_KEY = "jwt_auth"
 
 class PingFederateApiError(ConnectorBaseException):
     pass

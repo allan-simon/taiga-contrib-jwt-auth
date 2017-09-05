@@ -63,7 +63,7 @@
                     code: code
                 };
                 return $auth.
-                    login(data, "pingfederate").
+                    login(data, "jwt_auth").
                     then(
                         loginOnSuccess,
                         loginOnError

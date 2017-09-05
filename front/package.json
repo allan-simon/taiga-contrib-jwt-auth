@@ -12,6 +12,8 @@
     "url": "https://github.com/allan-simon/taiga-contrib-ping-federate-auth"
   },
   "keywords": [
+    "jwt",
+    "oauth2",
     "pingfederate",
     "taiga",
     "authentication",
