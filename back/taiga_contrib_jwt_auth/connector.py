@@ -61,6 +61,7 @@ def get_user_info(code):
     if response.status_code != 200:
         raise ConnectorBaseException(
             {
+                "backend_error": response.text,
                 "status_code": response.status_code,
                 "error": data.get("error", "")
             },
