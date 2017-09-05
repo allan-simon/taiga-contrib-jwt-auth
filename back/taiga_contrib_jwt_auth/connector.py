@@ -77,7 +77,7 @@ def get_user_info(code):
             'required_exp': True,
         }
     )
-
+    print(payload)
 
     return User(
         guid=payload.get("userGUID", None),
